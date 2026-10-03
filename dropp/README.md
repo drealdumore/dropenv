@@ -1,7 +1,7 @@
 # dropenv
 
 Share `.env` files and API keys without leaving them in chat history.
-**Paste. Encrypt. Share. Burn.** Zero dependencies, Node 18+.
+**Paste. Encrypt. Share. Burn.** Node 18+.
 
 Encryption happens on your machine (AES-256-GCM). The relay only stores ciphertext, and the key lives in the link's `#fragment`, which is never sent to a server.
 
@@ -45,7 +45,7 @@ the website:
 # From the npm package folder, install this local CLI version:
 npm install -g .
 
-dropenv config --relay https://your-app.onrender.com
+dropenv config --relay https://YOUR-APP-URL
 dropenv .env
 ```
 
@@ -56,7 +56,7 @@ The command prints a link. Send it to the recipient. They can open it in a brows
 install the CLI and retrieve it directly in their terminal:
 
 ```sh
-dropenv pull "https://your-app.onrender.com/#d=...&key=..."
+dropenv pull "https://YOUR-APP-URL/#d=...&key=..."
 ```
 
 The CLI infers the relay from a full link. It prints the decrypted text to stdout and
@@ -73,26 +73,24 @@ cat .env | npx dropenv - --ttl 10m --relay https://drop.example.com | pbcopy
 npx dropenv pull "<link>" > .env.local
 ```
 
-## Deploy on Render
+## Deploy on Pxxl
 
-This app needs a relay for sharing drops between browsers or devices. The browser-only
-fallback is local to one browser and is not a hosted relay. The relay stores encrypted
-ciphertext only; encryption keys remain in the URL fragment and are not sent to it.
+Set up a Node.js project connected to this repository. Use
+`dropp/dropenv-1.0.0/package` as its project root, with `npm install` as the build
+command and `npm start` as the start command. Create a managed PostgreSQL database,
+then set its private connection string as the app's `DATABASE_URL` environment
+variable. The relay creates its database table and index on startup.
 
-The repository's `render.yaml` creates a Node web service for this package, serves the
-browser app, and mounts a persistent disk at `/var/data`. Deploy the repository through
-Render's Blueprint flow and keep the disk mounted at `/var/data`. The service uses a
-single instance because local persistent disks cannot be shared between instances.
-Persistent disks require a paid Render web service plan; without one, drops are only
-kept in the instance's temporary filesystem and can disappear on restart or deploy.
+After deployment, check `/api/health`, then configure the CLI using the Pxxl app URL.
+Pxxl's guides describe managed PostgreSQL and Node hosting and say no credit card is
+required; verify the actual free-tier quotas and backup settings in your account.
 
-Render sets `PORT` automatically. For another host, run `node relay/server.js` and set
-`DATA_DIR` to a persistent writable directory. Do not expose the relay over plain HTTP
-on a public network; terminate HTTPS at the hosting provider.
+For local development, leave `DATABASE_URL` unset to use file storage. On other hosts,
+set `DATABASE_URL` to PostgreSQL or set `DATA_DIR` to a persistent writable directory.
 
 ## Security notes
 
-- The relay persists ciphertext and burn markers to disk; it never stores keys.
+- The relay stores only ciphertext and burn markers; it never stores keys.
 - Passwords are prompted, not taken as flags, so they stay out of shell history and process lists.
 - `pull --out` writes the file before burning the drop, so a failed write never destroys the only copy.
 - A password-protected drop is destroyed after 5 wrong attempts.

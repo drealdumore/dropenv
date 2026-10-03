@@ -3,9 +3,9 @@ services:
     name: dropenv
     runtime: node
     plan: starter
-    rootDir: dropp/dropenv-1.0.0/package/relay
-    buildCommand: node --check server.js
-    startCommand: node server.js
+    rootDir: dropp/dropenv-1.0.0/package
+    buildCommand: npm install
+    startCommand: npm start
     healthCheckPath: /api/health
     envVars:
       - key: DATA_DIR

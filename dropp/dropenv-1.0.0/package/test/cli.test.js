@@ -21,8 +21,10 @@ async function freePort() {
 }
 
 async function startRelay(port, dataDir) {
+  const env = { ...process.env, PORT: String(port), DATA_DIR: dataDir };
+  delete env.DATABASE_URL;
   const child = spawn(process.execPath, [server], {
-    env: { ...process.env, PORT: String(port), DATA_DIR: dataDir },
+    env,
     stdio: 'ignore',
   });
   const base = `http://127.0.0.1:${port}`;

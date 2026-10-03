@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "description": "Zero-knowledge, self-destructing .env sharing. Paste. Encrypt. Share. Burn.",
   "bin": { "dropenv": "bin/dropenv.js" },
-  "files": ["bin", "relay", "bip39.txt", "README.md", "LICENSE"],
+  "files": ["bin", "relay", "test", "bip39.txt", "README.md", "LICENSE"],
   "engines": { "node": ">=18" },
   "keywords": ["env", "secrets", "dotenv", "encryption", "zero-knowledge", "share", "cli"],
   "license": "MIT",
-  "scripts": { "start": "node bin/dropenv.js serve", "test": "node --test relay/server.test.js test/cli.test.js" }
+  "scripts": { "start": "node bin/dropenv.js serve", "test": "node --test relay/server.test.js relay/server.pg.test.js test/cli.test.js" },
+  "dependencies": { "pg": "^8.16.3" }
 }

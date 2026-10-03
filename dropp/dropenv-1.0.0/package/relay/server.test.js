@@ -19,8 +19,10 @@ async function freePort() {
 }
 
 async function launch(port, dataDir) {
+  const env = { ...process.env, PORT: String(port), DATA_DIR: dataDir };
+  delete env.DATABASE_URL;
   const child = spawn(process.execPath, [serverFile], {
-    env: { ...process.env, PORT: String(port), DATA_DIR: dataDir },
+    env,
     stdio: 'ignore',
   });
   const base = `http://127.0.0.1:${port}`;

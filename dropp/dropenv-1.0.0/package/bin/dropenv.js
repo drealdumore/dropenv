@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 // DropEnv CLI. Same wire format as the web app: AES-256-GCM, PBKDF2-SHA256 (200k), BIP-39 phrases.
-// Zero dependencies. Encryption happens here; the relay only ever sees ciphertext.
+// Encryption happens here; the relay only ever sees ciphertext.
 const fs = require('fs'), path = require('path'), os = require('os'), { webcrypto: wc } = require('node:crypto'), sub = wc.subtle;
 const VERSION = require('../package.json').version;
 const enc = new TextEncoder(), dec = new TextDecoder();

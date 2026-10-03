@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: dropenv
+    runtime: node
+    plan: starter
+    rootDir: dropp/dropenv-1.0.0/package/relay
+    buildCommand: node --check server.js
+    startCommand: node server.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATA_DIR
+        value: /var/data
+    disk:
+      name: dropenv-data
+      mountPath: /var/data
+      sizeGB: 1

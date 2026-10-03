@@ -7,5 +7,5 @@
   "engines": { "node": ">=18" },
   "keywords": ["env", "secrets", "dotenv", "encryption", "zero-knowledge", "share", "cli"],
   "license": "MIT",
-  "scripts": { "start": "node bin/dropenv.js serve", "test": "node test/run.js" }
+  "scripts": { "start": "node bin/dropenv.js serve", "test": "node --test relay/server.test.js test/cli.test.js" }
 }

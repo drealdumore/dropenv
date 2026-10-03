@@ -2,7 +2,7 @@
 'use strict';
 // DropEnv CLI. Same wire format as the web app: AES-256-GCM, PBKDF2-SHA256 (200k), BIP-39 phrases.
 // Zero dependencies. Encryption happens here; the relay only ever sees ciphertext.
-const fs = require('fs'), path = require('path'), { webcrypto: wc } = require('node:crypto'), sub = wc.subtle;
+const fs = require('fs'), path = require('path'), os = require('os'), { webcrypto: wc } = require('node:crypto'), sub = wc.subtle;
 const VERSION = require('../package.json').version;
 const enc = new TextEncoder(), dec = new TextDecoder();
 const b64 = u => Buffer.from(u).toString('base64url'), unb64 = s => new Uint8Array(Buffer.from(s, 'base64url'));
@@ -52,7 +52,45 @@ async function api(relay, method, id, body) {
     return await fetch(`${relay}/api/drops/${id}`, { method, headers: body ? { 'Content-Type': 'application/json' } : {}, body: body && JSON.stringify(body) });
   } catch (e) { die(`Cannot reach the relay at ${relay} (${e.cause?.code || e.message}). Use --relay or DROPENV_RELAY.`); }
 }
-const relayOf = (a, fallback) => (a.relay || process.env.DROPENV_RELAY || fallback || 'http://localhost:8787').replace(/\/+$/, '');
+const configFile = () => process.env.DROPENV_CONFIG_FILE || path.join(os.homedir(), '.dropenv', 'config.json');
+function configuredRelay() {
+  try {
+    const c = JSON.parse(fs.readFileSync(configFile(), 'utf8'));
+    if (!c || typeof c !== 'object' || Array.isArray(c)) die(`Invalid config in ${configFile()}. Run "dropenv config --clear" and configure it again.`);
+    return typeof c.relay === 'string' ? c.relay : '';
+  } catch (e) {
+    if (e.code === 'ENOENT') return '';
+    die(`Cannot read config ${configFile()}: ${e.message}`);
+  }
+}
+const relayOf = (a, fallback) => (a.relay || process.env.DROPENV_RELAY || configuredRelay() || fallback || 'http://localhost:8787').replace(/\/+$/, '');
+
+function config(a) {
+  const file = configFile();
+  if (a.clear) {
+    try { fs.rmSync(file, { force: true }); }
+    catch (e) { die(`Cannot clear config ${file}: ${e.message}`); }
+    err('Removed saved DropEnv config.');
+    return;
+  }
+  if (a.relay !== undefined) {
+    let url;
+    try { url = new URL(a.relay); } catch { die('--relay must be an absolute http(s) URL.'); }
+    if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password ||
+        (url.pathname !== '/' && url.pathname !== '') || url.search || url.hash) {
+      die('--relay must be a base http(s) URL, for example https://drop.example.com.');
+    }
+    const relay = url.origin;
+    try {
+      fs.mkdirSync(path.dirname(file), { recursive: true });
+      fs.writeFileSync(file, JSON.stringify({ relay }, null, 2) + '\n', { mode: 0o600 });
+      if (process.platform !== 'win32') fs.chmodSync(file, 0o600);
+    } catch (e) { die(`Cannot save config ${file}: ${e.message}`); }
+    err(`Saved default relay: ${relay}`);
+    return;
+  }
+  err(`Default relay: ${relayOf({})}\nOverride with --relay URL or DROPENV_RELAY.`);
+}
 
 // ---- commands ----
 async function push(a) {
@@ -136,6 +174,8 @@ const HELP = `dropenv ${VERSION}  Paste. Encrypt. Share. Burn.
   dropenv pull <link|words>   decrypt a drop to stdout (or --out file)
   dropenv burn <link|id>      destroy a drop now
   dropenv serve [--port N]    run your own relay and web app
+  dropenv config --relay URL  save your default relay
+  dropenv config [--clear]    show or clear the saved config
 
 push options
   --ttl 10m|1h|24h|7d   lifetime (default 24h)      --no-burn   keep until expiry
@@ -143,7 +183,7 @@ push options
 pull options
   --out FILE [--force]  write the file with mode 600
 common
-  --relay URL           relay to use (or DROPENV_RELAY; default http://localhost:8787)
+  --relay URL           relay to use (or DROPENV_RELAY / saved config; default http://localhost:8787)
   --site URL            base URL printed in links (or DROPENV_SITE; default: the relay)
   DROPENV_PASSWORD      password without a prompt (avoid putting secrets in argv)
 
@@ -167,10 +207,10 @@ function parse(v) {
 }
 
 (async () => {
-  const argv = process.argv.slice(2), CMDS = ['push', 'pull', 'burn', 'serve', 'help', 'version'];
+  const argv = process.argv.slice(2), CMDS = ['push', 'pull', 'burn', 'serve', 'config', 'help', 'version'];
   const cmd = CMDS.includes(argv[0]) ? argv.shift() : (argv.length || !process.stdin.isTTY ? 'push' : 'help');
   if (argv.includes('-h') || argv.includes('--help') || cmd === 'help') return process.stdout.write(HELP);
   if (argv.includes('-v') || cmd === 'version') return console.log(VERSION);
   const a = parse(argv);
-  await ({ push, pull, burn, serve }[cmd])(a);
+  await ({ push, pull, burn, serve, config }[cmd])(a);
 })().catch(e => die(e.message));

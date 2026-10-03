@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DropEnv</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--z9:#09090b;--z8:#18181b;--z7:#27272a;--z6:#3f3f46;--z5:#71717a;--z3:#d4d4d8;--em:#34d399;--cy:#22d3ee;--ro:#fb7185;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit;border-radius:0}
+body{margin:0;background:var(--z9);color:var(--z3);font:13px/1.55 "JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;min-height:100vh}
+body::before{content:"";position:fixed;inset:0;background:linear-gradient(var(--z7) 1px,transparent 1px) 0 0/48px 48px,linear-gradient(90deg,var(--z7) 1px,transparent 1px) 0 0/48px 48px;opacity:.22;animation:drift 24s linear infinite;pointer-events:none}
+@keyframes drift{to{background-position:48px 48px}}
+.wrap{position:relative;max-width:1040px;margin:0 auto;padding:0 16px 48px}
+.hd{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;padding:16px 0;border-bottom:1px solid var(--z7)}
+.logo{font-weight:800;font-size:16px;display:flex;align-items:center;gap:8px}
+.dot{width:8px;height:8px;background:var(--em);animation:pulse 2s infinite}
+@keyframes pulse{50%{opacity:.25;box-shadow:0 0 10px var(--em)}}
+nav{display:flex;border:1px solid var(--z7)}
+nav button{background:none;border:0;color:var(--z5);padding:7px 16px;font:inherit;cursor:pointer;transition:.2s}
+nav button.on{background:var(--z7);color:var(--em)}
+h1{font-size:clamp(26px,6vw,46px);font-weight:800;margin:30px 0 6px;letter-spacing:-.03em}
+.sub{color:var(--z5);margin:0 0 22px;max-width:60ch}
+.em{color:var(--em)}.cy{color:var(--cy)}.ro{color:var(--ro)}.mut{color:var(--z5)}
+.panel{display:none}.panel.on{display:block;animation:fin .35s ease-out}
+@keyframes fin{from{opacity:0;transform:translateY(8px)}}
+.grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:12px}
+@media(max-width:800px){.grid{grid-template-columns:1fr}}
+.card{background:var(--z8);border:1px solid var(--z7);padding:14px;margin-bottom:12px;position:relative}
+.bar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;margin:-14px -14px 12px;padding:8px 14px;border-bottom:1px solid var(--z7);background:var(--z9)}
+.tools{display:flex;gap:4px;flex-wrap:wrap}
+button,.btn{font:inherit;background:var(--z8);color:var(--z3);border:1px solid var(--z6);padding:5px 10px;cursor:pointer;transition:.15s}
+button:hover{border-color:var(--z5);background:var(--z7)}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--cy);outline-offset:1px}
+button.em{border-color:var(--em);color:var(--em)}button.em:hover{background:var(--em);color:var(--z9)}
+button.ro{border-color:var(--ro);color:var(--ro)}button.ro:hover{background:var(--ro);color:var(--z9)}
+button:disabled{opacity:.35;pointer-events:none}
+.cta{width:100%;padding:12px;font-weight:600;font-size:14px;margin-top:6px}
+.ed{display:flex;height:300px;border:1px solid var(--z7);background:var(--z9);overflow:hidden}
+.ed.drag{border-color:var(--em);box-shadow:inset 0 0 24px #34d39922}
+#gut{margin:0;padding:10px 8px;color:var(--z6);text-align:right;user-select:none;overflow:hidden;min-width:38px;border-right:1px solid var(--z7);font:inherit;white-space:pre}
+#ed{flex:1;background:none;border:0;color:var(--cy);font:inherit;padding:10px;resize:none;white-space:pre;overflow:auto;line-height:1.55}
+.mv{flex:1;overflow:auto;padding:10px 0}
+.ml{padding:0 10px;white-space:pre;display:flex;gap:8px}.ml i{color:var(--z6);font-style:normal;min-width:24px;text-align:right}
+.pv{color:var(--z5);cursor:pointer;padding:0 4px;background:var(--z7)}.pv.sh{color:var(--em);background:none}
+.stat{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;color:var(--z5);font-size:12px}
+label.f{display:block;color:var(--z5);margin:12px 0 5px;font-size:12px}
+input[type=text],input[type=password]{width:100%;background:var(--z9);border:1px solid var(--z6);color:var(--z3);padding:8px;font:inherit}
+.seg{display:flex}.seg button{flex:1;border-left-width:0;padding:6px 2px}.seg button:first-child{border-left-width:1px}
+.seg button.on{background:var(--em);border-color:var(--em);color:var(--z9);font-weight:600}
+.sw{display:flex;gap:10px;align-items:center;cursor:pointer;margin-top:12px}
+.sw input{display:none}.sw i{width:34px;height:16px;border:1px solid var(--z6);position:relative;transition:.2s}
+.sw i::after{content:"";position:absolute;top:2px;left:2px;width:10px;height:10px;background:var(--z5);transition:.2s}
+.sw input:checked+i{border-color:var(--ro)}.sw input:checked+i::after{left:20px;background:var(--ro)}
+.plain{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:20px}
+@media(max-width:700px){.plain{grid-template-columns:1fr}}
+.plain div{border-left:2px solid var(--em);padding-left:10px;color:var(--z5)}.plain b{display:block;color:var(--z3)}
+pre.a{overflow-x:auto;color:var(--z5);font-size:12px;margin:8px 0}
+details{margin-top:14px;border:1px solid var(--z7);padding:8px 12px}summary{cursor:pointer;color:var(--z5)}
+.step{display:flex;gap:10px;padding:4px 0;color:var(--z6);transition:.3s}.step::before{content:"○"}
+.step.act{color:var(--cy)}.step.act::before{content:"◐";animation:spin 1s linear infinite;display:inline-block}
+.step.done{color:var(--em)}.step.done::before{content:"●"}
+@keyframes spin{to{transform:rotate(360deg)}}
+.link{background:var(--z9);border:1px solid var(--z7);padding:10px;word-break:break-all;margin:8px 0}
+.chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:6px;margin:8px 0}
+.chip{border:1px solid var(--z6);padding:5px 8px;background:var(--z9);opacity:0;animation:pop .35s forwards;animation-delay:calc(var(--i)*70ms)}
+.chip i{color:var(--z5);font-style:normal;margin-right:6px}
+@keyframes pop{from{opacity:0;transform:scale(.8);border-color:var(--em)}to{opacity:1}}
+.ct{color:var(--z5);word-break:break-all;font-size:12px;border-left:2px solid var(--z6);padding-left:8px;margin:8px 0}
+.in{animation:fin .4s ease-out}
+.burn{animation:burn 1.3s ease-in forwards;pointer-events:none}
+@keyframes burn{0%{box-shadow:0 0 0 var(--ro)}35%{border-color:var(--ro);color:var(--ro);box-shadow:0 0 34px #fb718566;transform:scale(1.01)}100%{filter:blur(9px) saturate(3);opacity:0;transform:translateY(-22px) scaleY(.9);letter-spacing:.4em}}
+.gone{text-align:center;border-color:var(--ro);animation:fin .5s}.gone h3{font-size:28px;margin:8px 0}
+.bd{height:2px;background:var(--z7);margin-top:8px}.bd i{display:block;height:100%;background:var(--ro);width:100%}
+#tm{background:var(--z9);border:1px solid var(--z7);height:400px;display:flex;flex-direction:column}
+#to{flex:1;overflow:auto;padding:10px;white-space:pre-wrap;word-break:break-all}
+.tl{display:flex;gap:8px;padding:8px 10px;border-top:1px solid var(--z7)}.tl input{flex:1;background:none;border:0;color:var(--z3);font:inherit;outline:0}
+[data-c]{cursor:pointer;text-decoration:underline;color:var(--cy)}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,30px);background:var(--em);color:var(--z9);padding:8px 16px;opacity:0;transition:.25s;pointer-events:none;z-index:9}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+.hd{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:#09090bdd;backdrop-filter:blur(8px)}
+.chip2{font-size:11px;font-weight:400;color:var(--em);border:1px solid #34d39955;padding:1px 7px;margin-left:6px}
+.meter{height:3px;background:var(--z7);margin-top:6px}.meter i{display:block;height:100%;width:0;transition:.3s}
+.dr{display:flex;gap:10px;align-items:center;padding:6px 0;border-bottom:1px solid var(--z7)}.dr:last-child{border:0}.dr span:nth-child(2){flex:1}
+#toast.err{background:var(--ro)}button:active{transform:translateY(1px)}.card{transition:border-color .2s}.card:hover{border-color:var(--z6)}
+.ta{flex:1;position:relative;min-width:0}
+#hl,#ed{position:absolute;inset:0;margin:0;padding:10px;font:inherit;line-height:1.55;white-space:pre;border:0}
+#hl{color:var(--z3);pointer-events:none;overflow:hidden}#ed{background:none;color:transparent;caret-color:var(--em);overflow:auto;resize:none}
+#ed::placeholder{color:var(--z5)}#ed::selection{background:#22d3ee44}
+.hk{color:var(--cy)}.he{color:var(--z5)}.hv{color:var(--z3)}.hc{color:var(--z5);font-style:italic}.hx{color:var(--ro);text-decoration:underline wavy}
+.hero2{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap}.hero2 .hl{flex:1;min-width:240px}
+.link.big{font-size:15px;padding:14px;border-color:var(--em)}button.big{padding:12px 22px;font-weight:600;font-size:14px}
+.qr{background:#fff;padding:8px;line-height:0;border:1px solid var(--z6)}.qr:empty{display:none}
+.msg pre{margin:6px 0;white-space:pre-wrap;word-break:break-all;background:var(--z9);border:1px solid var(--z7);padding:10px;font:inherit;color:var(--z3)}
+body.rcv nav,body.rcv h1,body.rcv .sub,body.rcv #p-create,body.rcv #p-term,body.rcv #oin,body.rcv #oinl,body.rcv #obar{display:none!important}
+body.rcv #p-open{max-width:560px;margin:8vh auto 0}body.rcv #oGo{padding:16px;font-size:15px}
+#rcvh h2{margin:0 0 8px;font-size:24px;letter-spacing:-.02em}
+[hidden]{display:none!important}
+@media(prefers-reduced-motion:reduce){*,*::before{animation-duration:.01s!important;transition:none!important}}
+</style><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script></head><body><div class="wrap">
+<header class="hd"><div class="logo"><span class="dot"></span>DropEnv<span class="chip2" id="rm">connecting…</span></div>
+<nav id="tabs"><button data-t="create" class="on">Create drop</button><button data-t="open">Open drop</button><button data-t="term">Terminal</button></nav></header>
+<h1>Paste. <span class="em">Encrypt.</span> Share. <span class="ro">Burn.</span></h1>
+<p class="sub">Share .env files and API keys without leaving them in chat history. Your key stays in your browser; the server only ever holds a locked box.</p>
+
+<section id="p-create" class="panel on">
+<div class="grid"><div>
+<div class="card"><div class="bar"><span>.env workspace</span><span class="tools">
+<button data-pre="std">Standard</button><button data-pre="ai">AI keys</button><button data-pre="sb">Supabase</button>
+<button id="bImp">Import</button><button id="bPaste">Paste</button><button id="bMask">Privacy mode</button><button id="bClr">Clear</button></span></div>
+<div class="ed" id="edw"><pre id="gut">1</pre><div class="ta"><pre id="hl" aria-hidden="true"></pre><textarea id="ed" spellcheck="false" placeholder="Paste or drop a .env file here"></textarea></div><div class="mv" id="mv" hidden></div></div>
+<div class="stat" id="st"></div><input type="file" id="file" hidden></div></div>
+<div><div class="card"><div class="bar"><span>Drop policy</span></div>
+<label class="f">Expires after</label>
+<div class="seg" data-k="ttl"><button data-v="600">10 min</button><button data-v="3600">1 hour</button><button data-v="86400" class="on">24 hours</button><button data-v="604800">7 days</button></div>
+<label class="sw"><input type="checkbox" id="burn" checked><i></i><span>Burn when opened</span></label>
+<label class="f">Password (optional, adds a second lock)</label><input type="password" id="pw" autocomplete="new-password" placeholder="none"><div class="meter"><i id="pwm"></i></div><div class="mut" id="pwt" style="font-size:12px;min-height:18px"></div>
+<label class="f">How to share</label>
+<div class="seg" data-k="mode"><button data-v="link" class="on">One-time link</button><button data-v="phrase">12-word phrase</button></div>
+<div id="phw" hidden><label class="f">Phrase (leave empty to generate)</label><input type="text" id="ph" placeholder="12 BIP-39 words, or leave empty to generate"></div>
+<button class="em cta" id="go" disabled>Encrypt and create drop</button></div>
+<div class="card" id="pipe" hidden></div>
+<div class="card"><div class="bar"><span>Your active drops</span><span class="mut" id="dc"></span></div><div id="dl"></div></div></div></div>
+<div class="card in" id="res" hidden></div>
+<div class="plain"><div><b>Locked on your device</b>Encryption happens in your browser before anything is sent.</div><div><b>Only a locked safe is sent</b>The server gets scrambled data and never the key.</div><div><b>Deleted when viewed</b>After it is opened, the drop is erased and returns 410 GONE.</div></div>
+<details><summary>Technical details for auditors</summary><pre class="a">Sender browser
+ 1. AES-256-GCM key via crypto.subtle (96-bit IV)     link mode: random key
+ 2. Encrypt .env -> ciphertext                        phrase mode: PBKDF2-SHA256 (200k) from 12 words
+ 3. Key stays in URL fragment (#key=...) never sent   password: second PBKDF2 layer, sealed over the first
+        | ciphertext + IV + salt only
+Relay (self-hosted server, shared db or local fallback)  -- holds ciphertext, 0 keys
+        | recipient opens link
+Recipient browser: reads #key locally -> decrypts in memory -> relay erases blob -> HTTP 410 GONE</pre>
+<span class="mut">Relay: the page uses your self-hosted server (node server.js) when it is served by it, otherwise the shared artifact database, otherwise this browser's storage. The header chip shows which one is active.</span></details>
+</section>
+
+<section id="p-open" class="panel">
+<div class="card"><div id="rcvh" hidden><h2>Someone sent you a secret</h2><div class="mut" id="rcvm">Checking the drop…</div><button id="rcvNew" style="margin-top:10px">Create your own drop</button></div><div class="bar" id="obar"><span>Open a drop</span></div>
+<label class="f" id="oinl">Paste the full link or the 12-word phrase</label>
+<input type="text" id="oin" placeholder="https://…#d=…&key=…  or  word word word …">
+<div id="opwr" hidden><label class="f">This drop is password protected</label><input type="password" id="opw" autocomplete="off"></div>
+<button class="em cta" id="oGo">Unlock and decrypt</button><div id="omsg" aria-live="polite" style="margin-top:10px"></div></div>
+<div id="view" hidden></div>
+</section>
+
+<section id="p-term" class="panel"><div id="tm"><div id="to"></div><div class="tl"><span class="em">$</span><input id="ti" autocomplete="off" spellcheck="false" placeholder="type help"></div></div></section>
+</div><div id="toast" role="status" aria-live="polite"></div>
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],enc=new TextEncoder(),dec=new TextDecoder();
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])),sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const b64=u=>{let s='';for(const x of new Uint8Array(u))s+=String.fromCharCode(x);return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')};
+const unb64=s=>{s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return Uint8Array.from(atob(s),c=>c.charCodeAt(0))};
+const rnd=n=>crypto.getRandomValues(new Uint8Array(n)),DOTS='••••••••••••';
+const kdf=async(s,salt)=>{const m=await crypto.subtle.importKey('raw',enc.encode(s),'PBKDF2',false,['deriveKey']);return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:200000,hash:'SHA-256'},m,{name:'AES-GCM',length:256},true,['encrypt','decrypt'])};
+const seal=async(k,iv,d)=>new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},k,d)),unseal=async(k,iv,d)=>new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM',iv},k,d));
+const mem={},S={get(k){try{return localStorage.getItem(k)}catch{return mem[k]||null}},set(k,v){try{localStorage.setItem(k,v)}catch{mem[k]=v}},del(k){try{localStorage.removeItem(k)}catch{delete mem[k]}},keys(){try{return Object.keys(localStorage)}catch{return Object.keys(mem)}}};
+const MINE='dropenv-mine',mine=()=>{try{return JSON.parse(S.get(MINE)||'{}')}catch{return{}}},setMine=m=>S.set(MINE,JSON.stringify(m));
+const Relay={mode:'local',st:0,
+async init(){try{const r=await fetch('api/health',{cache:'no-store'});if((await r.json()).dropenv){this.mode='server';return}}catch{}
+try{if(window.claude){const db=await Promise.race([claude.use('db'),sleep(4000).then(()=>null)]);if(db){this.db=db;this.mode='shared'}}}catch{}},
+async get(id){await this.ready;let d=null;const m=this.mode;
+if(m==='server'){const r=await fetch('api/drops/'+id,{cache:'no-store'});this.st=r.status;d=r.ok?await r.json():null}
+else if(m==='shared'){try{const x=await this.db.doc('drops/'+id).get();d=x.exists?JSON.parse(x.data().j):null}catch{d=null}}
+else{const r=S.get('dropenv:'+id);try{d=r?JSON.parse(r):null}catch{S.del('dropenv:'+id)}}
+if(d&&Date.now()>d.exp){await this.del(id);return null}return d},
+async put(id,d){await this.ready;const m=this.mode;
+if(m==='server'){const r=await fetch('api/drops/'+id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});if(!r.ok)throw Error('Relay refused the drop ('+r.status+')')}
+else if(m==='shared')await this.db.doc('drops/'+id).set({j:JSON.stringify(d)});else S.set('dropenv:'+id,JSON.stringify(d))},
+async del(id){await this.ready;const m=this.mode;
+if(m==='server')await fetch('api/drops/'+id,{method:'DELETE'});
+else if(m==='shared'){await this.db.doc('drops/'+id).delete();await this.db.doc('gone/'+id).set({t:1})}
+else{S.del('dropenv:'+id);S.set('dropenv-x:'+id,'1')}},
+async gone(id){await this.ready;const m=this.mode;return m==='server'?this.st===410:m==='shared'?(await this.db.doc('gone/'+id).get()).exists:!!S.get('dropenv-x:'+id)}};
+Relay.ready=Relay.init().then(()=>{$('#rm').textContent={server:'server relay',shared:'shared relay',local:'local demo relay'}[Relay.mode]+' · 0 keys'});
+const W='abandon ability able about above absent absorb abstract absurd abuse access accident account accuse achieve acid acoustic acquire across act action actor actress actual adapt add addict address adjust admit adult advance advice aerobic affair afford afraid again age agent agree ahead aim air airport aisle alarm album alcohol alert alien all alley allow almost alone alpha already also alter always amateur amazing among amount amused analyst anchor ancient anger angle angry animal ankle announce annual another answer antenna antique anxiety any apart apology appear apple approve april arch arctic area arena argue arm armed armor army around arrange arrest arrive arrow art artefact artist artwork ask aspect assault asset assist assume asthma athlete atom attack attend attitude attract auction audit august aunt author auto autumn average avocado avoid awake aware away awesome awful awkward axis baby bachelor bacon badge bag balance balcony ball bamboo banana banner bar barely bargain barrel base basic basket battle beach bean beauty because become beef before begin behave behind believe below belt bench benefit best betray better between beyond bicycle bid bike bind biology bird birth bitter black blade blame blanket blast bleak bless blind blood blossom blouse blue blur blush board boat body boil bomb bone bonus book boost border boring borrow boss bottom bounce box boy bracket brain brand brass brave bread breeze brick bridge brief bright bring brisk broccoli broken bronze broom brother brown brush bubble buddy budget buffalo build bulb bulk bullet bundle bunker burden burger burst bus business busy butter buyer buzz cabbage cabin cable cactus cage cake call calm camera camp can canal cancel candy cannon canoe canvas canyon capable capital captain car carbon card cargo carpet carry cart case cash casino castle casual cat catalog catch category cattle caught cause caution cave ceiling celery cement census century cereal certain chair chalk champion change chaos chapter charge chase chat cheap check cheese chef cherry chest chicken chief child chimney choice choose chronic chuckle chunk churn cigar cinnamon circle citizen city civil claim clap clarify claw clay clean clerk clever click client cliff climb clinic clip clock clog close cloth cloud clown club clump cluster clutch coach coast coconut code coffee coil coin collect color column combine come comfort comic common company concert conduct confirm congress connect consider control convince cook cool copper copy coral core corn correct cost cotton couch country couple course cousin cover coyote crack cradle craft cram crane crash crater crawl crazy cream credit creek crew cricket crime crisp critic crop cross crouch crowd crucial cruel cruise crumble crunch crush cry crystal cube culture cup cupboard curious current curtain curve cushion custom cute cycle dad damage damp dance danger daring dash daughter dawn day deal debate debris decade december decide decline decorate decrease deer defense define defy degree delay deliver demand demise denial dentist deny depart depend deposit depth deputy derive describe desert design desk despair destroy detail detect develop device devote diagram dial diamond diary dice diesel diet differ digital dignity dilemma dinner dinosaur direct dirt disagree discover disease dish dismiss disorder display distance divert divide divorce dizzy doctor document dog doll dolphin domain donate donkey donor door dose double dove draft dragon drama drastic draw dream dress drift drill drink drip drive drop drum dry duck dumb dune during dust dutch duty dwarf dynamic eager eagle early earn earth easily east easy echo ecology economy edge edit educate effort egg eight either elbow elder electric elegant element elephant elevator elite else embark embody embrace emerge emotion employ empower empty enable enact end endless endorse enemy energy enforce engage engine enhance enjoy enlist enough enrich enroll ensure enter entire entry envelope episode equal equip era erase erode erosion error erupt escape essay essence estate eternal ethics evidence evil evoke evolve exact example excess exchange excite exclude excuse execute exercise exhaust exhibit exile exist exit exotic expand expect expire explain expose express extend extra eye eyebrow fabric face faculty fade faint faith fall false fame family famous fan fancy fantasy farm fashion fat fatal father fatigue fault favorite feature february federal fee feed feel female fence festival fetch fever few fiber fiction field figure file film filter final find fine finger finish fire firm first fiscal fish fit fitness fix flag flame flash flat flavor flee flight flip float flock floor flower fluid flush fly foam focus fog foil fold follow food foot force forest forget fork fortune forum forward fossil foster found fox fragile frame frequent fresh friend fringe frog front frost frown frozen fruit fuel fun funny furnace fury future gadget gain galaxy gallery game gap garage garbage garden garlic garment gas gasp gate gather gauge gaze general genius genre gentle genuine gesture ghost giant gift giggle ginger giraffe girl give glad glance glare glass glide glimpse globe gloom glory glove glow glue goat goddess gold good goose gorilla gospel gossip govern gown grab grace grain grant grape grass gravity great green grid grief grit grocery group grow grunt guard guess guide guilt guitar gun gym habit hair half hammer hamster hand happy harbor hard harsh harvest hat have hawk hazard head health heart heavy hedgehog height hello helmet help hen hero hidden high hill hint hip hire history hobby hockey hold hole holiday hollow home honey hood hope horn horror horse hospital host hotel hour hover hub huge human humble humor hundred hungry hunt hurdle hurry hurt husband hybrid ice icon idea identify idle ignore ill illegal illness image imitate immense immune impact impose improve impulse inch include income increase index indicate indoor industry infant inflict inform inhale inherit initial inject injury inmate inner innocent input inquiry insane insect inside inspire install intact interest into invest invite involve iron island isolate issue item ivory jacket jaguar jar jazz jealous jeans jelly jewel job join joke journey joy judge juice jump jungle junior junk just kangaroo keen keep ketchup key kick kid kidney kind kingdom kiss kit kitchen kite kitten kiwi knee knife knock know lab label labor ladder lady lake lamp language laptop large later latin laugh laundry lava law lawn lawsuit layer lazy leader leaf learn leave lecture left leg legal legend leisure lemon lend length lens leopard lesson letter level liar liberty library license life lift light like limb limit link lion liquid list little live lizard load loan lobster local lock logic lonely long loop lottery loud lounge love loyal lucky luggage lumber lunar lunch luxury lyrics machine mad magic magnet maid mail main major make mammal man manage mandate mango mansion manual maple marble march margin marine market marriage mask mass master match material math matrix matter maximum maze meadow mean measure meat mechanic medal media melody melt member memory mention menu mercy merge merit merry mesh message metal method middle midnight milk million mimic mind minimum minor minute miracle mirror misery miss mistake mix mixed mixture mobile model modify mom moment monitor monkey monster month moon moral more morning mosquito mother motion motor mountain mouse move movie much muffin mule multiply muscle museum mushroom music must mutual myself mystery myth naive name napkin narrow nasty nation nature near neck need negative neglect neither nephew nerve nest net network neutral never news next nice night noble noise nominee noodle normal north nose notable note nothing notice novel now nuclear number nurse nut oak obey object oblige obscure observe obtain obvious occur ocean october odor off offer office often oil okay old olive olympic omit once one onion online only open opera opinion oppose option orange orbit orchard order ordinary organ orient original orphan ostrich other outdoor outer output outside oval oven over own owner oxygen oyster ozone pact paddle page pair palace palm panda panel panic panther paper parade parent park parrot party pass patch path patient patrol pattern pause pave payment peace peanut pear peasant pelican pen penalty pencil people pepper perfect permit person pet phone photo phrase physical piano picnic picture piece pig pigeon pill pilot pink pioneer pipe pistol pitch pizza place planet plastic plate play please pledge pluck plug plunge poem poet point polar pole police pond pony pool popular portion position possible post potato pottery poverty powder power practice praise predict prefer prepare present pretty prevent price pride primary print priority prison private prize problem process produce profit program project promote proof property prosper protect proud provide public pudding pull pulp pulse pumpkin punch pupil puppy purchase purity purpose purse push put puzzle pyramid quality quantum quarter question quick quit quiz quote rabbit raccoon race rack radar radio rail rain raise rally ramp ranch random range rapid rare rate rather raven raw razor ready real reason rebel rebuild recall receive recipe record recycle reduce reflect reform refuse region regret regular reject relax release relief rely remain remember remind remove render renew rent reopen repair repeat replace report require rescue resemble resist resource response result retire retreat return reunion reveal review reward rhythm rib ribbon rice rich ride ridge rifle right rigid ring riot ripple risk ritual rival river road roast robot robust rocket romance roof rookie room rose rotate rough round route royal rubber rude rug rule run runway rural sad saddle sadness safe sail salad salmon salon salt salute same sample sand satisfy satoshi sauce sausage save say scale scan scare scatter scene scheme school science scissors scorpion scout scrap screen script scrub sea search season seat second secret section security seed seek segment select sell seminar senior sense sentence series service session settle setup seven shadow shaft shallow share shed shell sheriff shield shift shine ship shiver shock shoe shoot shop short shoulder shove shrimp shrug shuffle shy sibling sick side siege sight sign silent silk silly silver similar simple since sing siren sister situate six size skate sketch ski skill skin skirt skull slab slam sleep slender slice slide slight slim slogan slot slow slush small smart smile smoke smooth snack snake snap sniff snow soap soccer social sock soda soft solar soldier solid solution solve someone song soon sorry sort soul sound soup source south space spare spatial spawn speak special speed spell spend sphere spice spider spike spin spirit split spoil sponsor spoon sport spot spray spread spring spy square squeeze squirrel stable stadium staff stage stairs stamp stand start state stay steak steel stem step stereo stick still sting stock stomach stone stool story stove strategy street strike strong struggle student stuff stumble style subject submit subway success such sudden suffer sugar suggest suit summer sun sunny sunset super supply supreme sure surface surge surprise surround survey suspect sustain swallow swamp swap swarm swear sweet swift swim swing switch sword symbol symptom syrup system table tackle tag tail talent talk tank tape target task taste tattoo taxi teach team tell ten tenant tennis tent term test text thank that theme then theory there they thing this thought three thrive throw thumb thunder ticket tide tiger tilt timber time tiny tip tired tissue title toast tobacco today toddler toe together toilet token tomato tomorrow tone tongue tonight tool tooth top topic topple torch tornado tortoise toss total tourist toward tower town toy track trade traffic tragic train transfer trap trash travel tray treat tree trend trial tribe trick trigger trim trip trophy trouble truck true truly trumpet trust truth try tube tuition tumble tuna tunnel turkey turn turtle twelve twenty twice twin twist two type typical ugly umbrella unable unaware uncle uncover under undo unfair unfold unhappy uniform unique unit universe unknown unlock until unusual unveil update upgrade uphold upon upper upset urban urge usage use used useful useless usual utility vacant vacuum vague valid valley valve van vanish vapor various vast vault vehicle velvet vendor venture venue verb verify version very vessel veteran viable vibrant vicious victory video view village vintage violin virtual virus visa visit visual vital vivid vocal voice void volcano volume vote voyage wage wagon wait walk wall walnut want warfare warm warrior wash wasp waste water wave way wealth weapon wear weasel weather web wedding weekend weird welcome west wet whale what wheat wheel when where whip whisper wide width wife wild will win window wine wing wink winner winter wire wisdom wise wish witness wolf woman wonder wood wool word work world worry worth wrap wreck wrestle wrist write wrong yard year yellow you young youth zebra zero zone zoo'.split(' ');
+const bin=(n,l)=>n.toString(2).padStart(l,'0'),sha=async e=>new Uint8Array(await crypto.subtle.digest('SHA-256',e));
+async function genPhrase(){const e=rnd(16);let b=[...e].map(x=>bin(x,8)).join('')+bin((await sha(e))[0],8).slice(0,4);return Array.from({length:12},(_,i)=>W[parseInt(b.slice(i*11,i*11+11),2)]).join(' ')}
+async function validPhrase(p){const w=normP(p).split(' ');if(w.length!==12)return'The phrase needs exactly 12 words.';const ix=w.map(x=>W.indexOf(x)),bad=ix.indexOf(-1);if(bad>=0)return'"'+w[bad]+'" is not a BIP-39 word.';const b=ix.map(i=>bin(i,11)).join(''),e=new Uint8Array(16).map((_,i)=>parseInt(b.slice(i*8,i*8+8),2));return bin((await sha(e))[0],8).slice(0,4)===b.slice(128)?'':'Checksum failed. Check for a typo or a wrong word order.'}
+const normP=p=>p.trim().toLowerCase().split(/\s+/).join(' ');
+const pid=async p=>b64(await crypto.subtle.digest('SHA-256',enc.encode('dropenv-id:'+normP(p)))).slice(0,12);
+const state={ttl:86400,mode:'link',mask:false},ses={created:0,opened:0,burned:0,sid:b64(rnd(4))};
+const PRE={std:'# Standard .env\nNODE_ENV=production\nPORT=3000\nDATABASE_URL=postgres://app:s3cr3t@db.internal:5432/app\nREDIS_URL=redis://:r3dispw@cache:6379\nJWT_SECRET=8f14e45fceea167a5a36dedd4bea2543\nSESSION_TTL=3600',ai:'# AI provider keys\nOPENAI_API_KEY=sk-proj-EXAMPLE1234567890\nANTHROPIC_API_KEY=sk-ant-EXAMPLE1234567890\nGEMINI_API_KEY=AIzaSyEXAMPLE1234567890',sb:'# Supabase\nSUPABASE_URL=https://xyzcompany.supabase.co\nSUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIs.EXAMPLE\nSUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIs.SERVICE\nDATABASE_URL=postgresql://postgres:pw@db.xyz.supabase.co:5432/postgres'};
+let tt;const toast=(m,err)=>{const t=$('#toast');t.textContent=m;t.classList.toggle('err',!!err);t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1600)};
+const copy=async t=>{try{await navigator.clipboard.writeText(t);toast('Copied')}catch{const a=document.createElement('textarea');a.value=t;a.style.cssText='position:fixed;opacity:0';document.body.append(a);a.select();let ok=0;try{ok=document.execCommand('copy')}catch{}a.remove();ok?toast('Copied'):toast('Copy blocked. Select and copy manually.',1)}};
+function tab(t){$$('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));$$('.panel').forEach(p=>p.classList.toggle('on',p.id==='p-'+t));if(t==='term')$('#ti').focus()}
+$('#tabs').onclick=e=>{if(e.target.dataset.t)tab(e.target.dataset.t)};
+const parse=t=>t.split('\n').map((raw,i)=>{const m=raw.match(/^\s*(?:export\s+)?([A-Za-z_][\w.]*)\s*=(.*)$/);return{n:i+1,raw,key:m?m[1]:null,val:m?m[2]:null}});
+function maskedView(el,L){el.innerHTML='';L.forEach(l=>{const d=document.createElement('div');d.className='ml';const n=document.createElement('i');n.textContent=l.n;d.append(n);
+if(l.key){const k=document.createElement('span');k.className='cy';k.textContent=l.key;const v=document.createElement('span');v.className='pv';v.textContent=DOTS;v.title='Click to peek';let sh=0;v.onclick=()=>{sh=!sh;v.textContent=sh?l.val:DOTS;v.classList.toggle('sh',sh)};d.append(k,'=',v)}else{const c=document.createElement('span');c.className='mut';c.textContent=l.raw||'\u00a0';d.append(c)}el.append(d)})}
+const ed=$('#ed');
+function hl(L,dup){$('#hl').innerHTML=L.map(l=>{const m=l.raw.match(/^(\s*(?:export\s+)?)([A-Za-z_][\w.]*)(\s*=)(.*)$/);if(m)return esc(m[1])+`<span class="${dup.has(m[2])?'hx':'hk'}">${esc(m[2])}</span><span class="he">${esc(m[3])}</span><span class="hv">${esc(m[4])}</span>`;return /^\s*#/.test(l.raw)?`<span class="hc">${esc(l.raw)}</span>`:esc(l.raw)}).join('\n')+'\n'}
+function upd(){const t=ed.value,L=parse(t),ks=L.filter(l=>l.key),seen={},dup=new Set();ks.forEach(l=>seen[l.key]?dup.add(l.key):seen[l.key]=1);
+$('#gut').textContent=L.map(l=>l.n).join('\n');const b=enc.encode(t).length;
+$('#st').innerHTML=`<span>${L.length} lines</span><span class="cy">${ks.length} variables</span><span>${b} bytes</span>`+(dup.size?`<span class="ro">duplicate keys: ${[...dup].map(esc).join(', ')}</span>`:ks.length?'<span class="em">no duplicate keys</span>':'')+(b>65536?'<span class="ro">over the 64 KB limit</span>':'');
+hl(L,dup);if(state.mask)maskedView($('#mv'),L);$('#go').disabled=!t.trim()||b>65536}
+ed.oninput=upd;ed.onscroll=()=>{$('#gut').scrollTop=$('#hl').scrollTop=ed.scrollTop;$('#hl').scrollLeft=ed.scrollLeft};
+$$('[data-pre]').forEach(b=>b.onclick=()=>{ed.value=PRE[b.dataset.pre];upd()});
+$('#bClr').onclick=()=>{ed.value='';upd()};
+$('#bMask').onclick=()=>{state.mask=!state.mask;$('#mv').hidden=!state.mask;$('.ta').hidden=state.mask;$('#gut').hidden=state.mask;$('#bMask').classList.toggle('em',state.mask);upd()};
+$('#bPaste').onclick=async()=>{try{ed.value=await navigator.clipboard.readText();upd()}catch{toast('Clipboard blocked. Paste with Ctrl+V.')}};
+$('#bImp').onclick=()=>$('#file').click();
+const load=async f=>{if(f){ed.value=await f.text();upd();toast('Imported '+f.name)}};
+$('#file').onchange=e=>load(e.target.files[0]);
+const edw=$('#edw');edw.ondragover=e=>{e.preventDefault();edw.classList.add('drag')};edw.ondragleave=()=>edw.classList.remove('drag');edw.ondrop=e=>{e.preventDefault();edw.classList.remove('drag');load(e.dataTransfer.files[0])};
+document.addEventListener('click',e=>{const b=e.target.closest('.seg button');if(!b)return;const s=b.parentElement;s.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));state[s.dataset.k]=isNaN(b.dataset.v)?b.dataset.v:+b.dataset.v;$('#phw').hidden=state.mode!=='phrase'});
+async function createDrop(text,o){const iv=rnd(12),salt=rnd(16);let key,id,secret,phrase;
+if(o.mode==='link'){key=await crypto.subtle.generateKey({name:'AES-GCM',length:256},true,['encrypt','decrypt']);secret=b64(await crypto.subtle.exportKey('raw',key));id=b64(rnd(9))}
+else{phrase=normP(o.phrase);id=await pid(phrase);if(await Relay.get(id)||await Relay.gone(id))throw Error('That phrase was already used. Generate a new one.');key=await kdf(phrase,salt)}
+let ct=await seal(key,iv,enc.encode(text)),d={mode:o.mode,iv:b64(iv),salt:b64(salt),burn:o.burn,exp:Date.now()+o.ttl*1000,pw:!!o.pw};
+if(o.pw){const s2=rnd(16),i2=rnd(12);ct=await seal(await kdf(o.pw,s2),i2,ct);d.s2=b64(s2);d.i2=b64(i2)}
+d.ct=b64(ct);await Relay.put(id,d);const mm=mine();mm[id]={mode:o.mode,pw:!!o.pw,burn:o.burn,exp:d.exp};setMine(mm);ses.created++;
+return{id,d,phrase,link:o.mode==='link'?`${location.href.split('#')[0]}#d=${id}&key=${secret}`:null}}
+async function unlock(id,sec,pw){const d=await Relay.get(id);if(!d){const g=await Relay.gone(id);return{err:g?'410 GONE: this drop was burned or has expired.':'404: no drop found for this link or phrase.',gone:g}}
+if(d.pw&&!pw)return{need:1};
+try{const key=d.mode==='link'?await crypto.subtle.importKey('raw',unb64(sec),'AES-GCM',false,['decrypt']):await kdf(sec,unb64(d.salt));
+let ct=unb64(d.ct);if(d.pw)ct=await unseal(await kdf(pw,unb64(d.s2)),unb64(d.i2),ct);
+const text=dec.decode(await unseal(key,unb64(d.iv),ct));ses.opened++;let bf=0;if(d.burn){try{await Relay.del(id);ses.burned++}catch{bf=1}}return{text,burned:d.burn&&!bf,exp:d.exp,bf}}
+catch{if(!d.pw)return{err:'Could not decrypt. The link key or phrase does not match this drop.'};d.tries=(d.tries||0)+1;if(d.tries>=5){await Relay.del(id);ses.burned++;return{err:'Too many wrong passwords. The drop was destroyed to stop guessing.',gone:1}}await Relay.put(id,d).catch(()=>0);return{err:`Wrong password or key. ${5-d.tries} attempts left before the drop self-destructs.`}}}
+function scramble(el,f){let i=0;const C='ABCDEFGHJKLMNPQRSTUVWXYZ0123456789+/';const t=setInterval(()=>{el.textContent=f.slice(0,i)+Array.from({length:f.length-i},()=>C[Math.random()*C.length|0]).join('');i+=3;if(i>f.length+3){el.textContent=f;clearInterval(t)}},25)}
+function burnFx(el,msg){el.classList.add('burn');setTimeout(()=>{el.className='card gone';el.innerHTML=`<div class="ro mut">HTTP 410</div><h3 class="ro">GONE</h3><div class="mut">${msg||'This drop was permanently erased.'}</div>`},1300)}
+let cd;
+async function run(){if(!crypto.subtle)return toast('WebCrypto needs a secure https page.',1);const text=ed.value,pw=$('#pw').value,mode=state.mode;let phrase='';
+if(mode==='phrase'){phrase=$('#ph').value.trim()||await genPhrase();const pe=await validPhrase(phrase);if(pe)return toast(pe,1)}
+const steps=['Generate 256-bit AES-GCM key','Encrypt .env in this browser','Seal with password layer','Send ciphertext only (0 keys)'].filter((s,i)=>i!==2||pw);
+const pp=$('#pipe');pp.hidden=false;$('#res').hidden=true;$('#go').disabled=true;pp.innerHTML=steps.map(s=>`<div class="step">${s}</div>`).join('');
+let prom=createDrop(text,{ttl:state.ttl,burn:$('#burn').checked,pw,mode,phrase}),st=$$('#pipe .step');
+prom.catch(()=>{});for(const s of st){s.classList.add('act');await sleep(pw?450:380);s.classList.replace('act','done')}
+try{show(await prom)}catch(e){toast(e.message);pp.hidden=true}
+$('#go').disabled=false}
+function show({id,d,phrase,link}){renderDrops();$('#pipe').hidden=true;const r=$('#res');r.className='card in';r.hidden=false;
+const tl=(d.exp-Date.now())/1000|0,lbl=tl>=172800?Math.round(tl/86400)+'d':tl>=3600?Math.round(tl/3600)+'h':Math.round(tl/60)+'min',
+tail=(d.burn?' and self-destructs after you open it':'')+'.'+(d.pw?' I will send the password separately.':''),
+msg=link?`Here is a one-time link to the secrets you asked for. It expires in ${lbl}${tail}\n${link}`:`I shared secrets with you on DropEnv (${location.href.split('#')[0]}). Open the "Open drop" tab and enter the 12-word phrase I will tell you separately. It expires in ${lbl}${tail}`,
+hero=link?`<div class="hl"><div class="mut">Send this one-time link. The key after # never reaches the server.</div><div class="link big">${esc(link.split('#')[0])}<b class="em">#${esc(link.split('#')[1])}</b></div><button class="em big" id="rC">Copy link</button></div><div class="qr" id="qr" title="Scan to open on a phone"></div>`
+:`<div class="hl"><div class="mut">Tell the recipient these 12 words. They enter them on the Open drop tab.</div><div class="chips">${phrase.split(' ').map((w,i)=>`<div class="chip" style="--i:${i}"><i>${i+1}</i>${w}</div>`).join('')}</div><button class="em big" id="rC">Copy phrase</button></div>`;
+r.innerHTML=`<div class="bar"><span class="em">● drop sealed${d.pw?' with password':''} · expires in ${lbl}</span><span class="tools"><button id="rO">Open as recipient</button><button id="rB" class="ro">Burn now</button><button id="rN">New drop</button></span></div><div class="hero2">${hero}</div><div class="msg"><div class="mut" style="margin-top:14px">Message to send with it</div><pre id="rMsg"></pre><button id="rM">Copy message</button></div><div class="ct" id="rCt"></div><div class="mut">Time left <b class="cy" id="rT"></b>${d.burn?' · burns when opened':' · stays until expiry'}</div><div class="bd"><i id="rBar"></i></div>`;
+$('#rMsg').textContent=msg;$('#rM').onclick=()=>copy(msg);
+if(link&&window.QRCode){try{new QRCode($('#qr'),{text:link,width:132,height:132,colorDark:'#09090b',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.L})}catch{}}
+scramble($('#rCt'),'ciphertext '+d.ct.slice(0,88)+'…');
+const total=d.exp-Date.now();clearInterval(cd);cd=setInterval(()=>{const l=d.exp-Date.now();if(l<=0){clearInterval(cd);$('#rT').textContent='now';return}if((l/1000|0)%10===0)Relay.get(id).then(x=>{if(!x){clearInterval(cd);$('#rT').textContent='gone'}}).catch(()=>0);const s=l/1000|0;$('#rT').textContent=(s>3600?(s/3600|0)+'h ':'')+((s%3600)/60|0)+'m '+s%60+'s';$('#rBar').style.width=l/total*100+'%'},1000);
+$('#rC').onclick=()=>copy(link||phrase);$('#rN').onclick=()=>{r.hidden=true;clearInterval(cd);ed.value='';$('#pw').value='';upd()};
+$('#rB').onclick=async()=>{clearInterval(cd);await Relay.del(id);ses.burned++;renderDrops();burnFx(r,'You burned this drop. Its link and phrase no longer work.')};
+$('#rO').onclick=()=>{$('#oin').value=link||phrase;tab('open');$('#omsg').innerHTML='<span class="mut">Press Unlock to decrypt.</span>'};r.scrollIntoView({behavior:'smooth',block:'nearest'})}
+$('#go').onclick=run;
+const parseIn=s=>{s=s.trim();const m=s.match(/#d=([\w-]+)&key=([\w-]+)/);if(m)return{id:m[1],sec:m[2]};const w=normP(s);return w.split(' ').length===12?{phrase:w}:null};
+async function doOpen(){const inp=parseIn($('#oin').value),msg=$('#omsg');if(!inp){msg.innerHTML='<span class="ro">Enter a full DropEnv link or exactly 12 words.</span>';return}
+let{id,sec}=inp;if(inp.phrase){id=await pid(inp.phrase);sec=inp.phrase;const pe=await validPhrase(inp.phrase);if(pe){msg.innerHTML='<span class="ro">'+esc(pe)+'</span>';return}}
+msg.innerHTML='<span class="cy">Decrypting locally…</span>';const r=await unlock(id,sec,$('#opw').value);
+if(r.need){$('#opwr').hidden=false;msg.innerHTML='<span class="ro">Enter the password to continue.</span>';$('#opw').focus();return}
+if(r.err){msg.innerHTML=`<span class="ro">${r.err}</span>`;const v=$('#view');if(r.gone){v.hidden=false;v.className='card';burnFx(v)}else v.hidden=true;return}
+msg.innerHTML='<span class="em">Decrypted in memory.</span>';renderDrops();showView(r,id)}
+$('#oGo').onclick=async()=>{const b=$('#oGo');b.disabled=true;try{await doOpen()}catch(e){$('#omsg').innerHTML='<span class="ro">Unexpected error: '+esc(e.message||'failed')+'</span>'}b.disabled=false};
+$('#oin').onkeydown=$('#opw').onkeydown=e=>{if(e.key==='Enter')$('#oGo').click()};
+function showView(r,id){const v=$('#view');v.hidden=false;v.className='card in';
+v.innerHTML=`<div class="bar"><span class="em">● decrypted, screen clears in <b id="vt">120</b>s</span><span class="tools"><button id="vR">Reveal all</button><button id="vC">Copy</button>${r.burned?'':'<button id="vB" class="ro">Burn now</button>'}</span></div><div class="mv" id="vm" style="padding:0"></div><div class="mut" style="margin-top:10px">${r.burned?'This drop burned the moment you opened it. Copy what you need now.':(r.bf?'Could not burn this drop (read-only access). It stays until it expires.':'This drop stays available until it expires.')}</div><div class="bd"><i id="vbar"></i></div>`;
+maskedView($('#vm'),parse(r.text));let n=120;const t=setInterval(()=>{n--;if(!$('#vt')){clearInterval(t);return}$('#vt').textContent=n;$('#vbar').style.width=n/1.2+'%';if(n<=0){clearInterval(t);burnFx(v,'Screen cleared. Ask for a new drop if you need the secrets again.')}},1000);
+$('#vR').onclick=()=>$$('#vm .pv:not(.sh)').forEach(p=>p.click());$('#vC').onclick=()=>copy(r.text);
+if($('#vB'))$('#vB').onclick=()=>{Relay.del(id);ses.burned++;clearInterval(t);burnFx(v,'Burned by you. This drop no longer exists.')}}
+function route(){const rc=/#d=/.test(location.hash);document.body.classList.toggle('rcv',rc);$('#rcvh').hidden=!rc;$('#oGo').textContent=rc?'Unlock secret':'Unlock and decrypt';
+if(rc){$('#oin').value=location.href;tab('open');$('#omsg').innerHTML='';rcvMeta()}}
+async function rcvMeta(){const m=location.hash.match(/#d=([\w-]+)/),el=$('#rcvm');if(!m)return;try{const d=await Relay.get(m[1]);
+if(!d){el.innerHTML=(await Relay.gone(m[1]))?'<span class="ro">410 GONE. This drop was already opened, burned or has expired.</span>':'<span class="ro">No drop found for this link.</span>';$('#oGo').disabled=true;return}
+const t=Math.max(0,(d.exp-Date.now())/1000|0),f=t>=172800?Math.round(t/86400)+' days':t>=3600?Math.round(t/3600)+' hours':Math.round(t/60)+' minutes';
+el.innerHTML=`Expires in <b class="cy">${f}</b>. ${d.burn?'It <b class="ro">self-destructs</b> the moment you open it, so have somewhere ready to paste it.':'It stays available until it expires.'}${d.pw?' <b class="em">Password required</b>: ask the sender.':''}`;$('#opwr').hidden=!d.pw;$('#oGo').disabled=false}catch{el.textContent='Could not reach the relay. Check your connection and reload.'}}
+$('#rcvNew').onclick=()=>{history.pushState('',document.title,location.pathname+location.search);$('#oin').value='';$('#oGo').disabled=false;$('#opwr').hidden=true;route();tab('create')};
+addEventListener('hashchange',route);route();
+const to=$('#to'),ti=$('#ti'),hist=[];let hi=0;
+const tp=(h,c='')=>{const d=document.createElement('div');d.className=c;d.innerHTML=h;to.append(d);to.scrollTop=1e9};
+to.onclick=e=>{if(e.target.dataset.c)copy(e.target.dataset.c)};
+const CM=['help','ls','cat','npx','whoami','stats','burn','clear','load','open'];
+tp('<span class="em">dropenv-shell</span> v1 · type <span class="cy">help</span>. Try: <span class="cy">load ai</span> then <span class="cy">npx dropenv .env</span>','mut');
+async function exec(line){tp(`<span class="em">dropenv@shell</span>:<span class="cy">~</span>$ ${esc(line)}`);const[c,...a]=line.trim().split(/\s+/);
+switch(c){case'':return;
+case'help':tp('help · ls · cat .env · load std|ai|sb · whoami · stats · burn &lt;id&gt; · open &lt;link|12 words&gt; · clear\nnpx dropenv .env [--no-burn] [--ttl=10m|1h|24h|7d] [--pw=secret]');break;
+case'ls':tp(ed.value?`.env  ${enc.encode(ed.value).length} B`:'(empty workspace)');break;
+case'cat':ed.value?tp(esc(ed.value),'cy'):tp('cat: .env: empty. Use load std','ro');break;
+case'load':PRE[a[0]]?(ed.value=PRE[a[0]],upd(),tp('Loaded '+a[0]+' preset into .env','em')):tp('usage: load std|ai|sb','ro');break;
+case'whoami':tp(`anonymous@dropenv · zero-knowledge session ${ses.sid}\nkeys held by server: 0`);break;
+case'stats':tp(`drops created: ${ses.created}\ndrops opened:  ${ses.opened}\ndrops burned:  ${ses.burned}\nactive in relay: ${Object.keys(mine()).length}`);break;
+case'clear':to.innerHTML='';break;
+case'burn':{const id=a[0];if(id&&await Relay.get(id)){await Relay.del(id);ses.burned++;tp('Erased '+esc(id)+'. Now returns 410 GONE.','ro')}else tp('burn: unknown drop id','ro')}break;
+case'open':{const inp=parseIn(a.join(' '));if(!inp)return tp('usage: open &lt;full link | 12 words&gt;','ro');let{id,sec}=inp;if(inp.phrase){id=await pid(inp.phrase);sec=inp.phrase}
+const pw=(a.find(x=>x.startsWith('--pw='))||'').slice(5),r=await unlock(id,sec,pw);
+if(r.need)tp('Password protected. Add --pw=secret','ro');else if(r.err)tp(esc(r.err),'ro');else{parse(r.text).filter(l=>l.key).forEach(l=>tp(`<span class="cy">${esc(l.key)}</span>=${DOTS}`));tp(r.burned?'Drop burned after read.':'Drop remains until expiry.','mut')}}break;
+case'npx':{if(a[0]!=='dropenv')return tp('npx: only "dropenv" is available here','ro');if(!ed.value.trim())return tp('No .env in workspace. Run: load std','ro');
+const f=k=>(a.find(x=>x.startsWith(k))||'').slice(k.length),T={'10m':600,'1h':3600,'24h':86400,'7d':604800}[f('--ttl=')]||86400;
+tp('Generating 256-bit key…','mut');await sleep(300);tp('Encrypting locally…','mut');try{const r=await createDrop(ed.value,{ttl:T,burn:!a.includes('--no-burn'),pw:f('--pw='),mode:'link'});await sleep(250);tp('✔ Sealed. Click the link to copy:','em');tp(`<span data-c="${esc(r.link)}">${esc(r.link)}</span>`)}catch(e){tp(esc(e.message),'ro')}}break;
+default:tp(`command not found: ${esc(c)}`,'ro')}}
+ti.onkeydown=e=>{if(e.key==='Enter'){const v=ti.value;ti.value='';if(v.trim()){hist.push(v);hi=hist.length}exec(v)}
+else if(e.key==='ArrowUp'){e.preventDefault();if(hi>0)ti.value=hist[--hi]}
+else if(e.key==='ArrowDown'){e.preventDefault();ti.value=++hi<hist.length?hist[hi]:(hi=hist.length,'')}
+else if(e.key==='Tab'){e.preventDefault();const p=ti.value.split(' '),l=p.pop(),pool=p.length?(p[0]==='npx'&&p.length===1?['dropenv']:['.env','--no-burn','--ttl=','--pw=']):CM,m=pool.filter(x=>x.startsWith(l));if(m.length===1)ti.value=[...p,m[0]].join(' ')+' ';else if(m.length>1)tp(m.join('  '),'mut')}};
+$('#pw').oninput=e=>{const v=e.target.value;let s=0;if(v.length>=8)s++;if(v.length>=12)s++;if(/[a-z]/.test(v)&&/[A-Z]/.test(v))s++;if(/\d/.test(v)&&/[^\w]/.test(v))s++;const m=$('#pwm');m.style.width=v?Math.max(s,1)*25+'%':'0';m.style.background=['var(--ro)','var(--ro)','var(--ro)','#fbbf24','var(--em)'][s];$('#pwt').textContent=v?['Weak','Weak','Fair','Good','Strong'][s]:''};
+async function renderDrops(){const el=$('#dl'),m=mine();let ch=0;for(const k of Object.keys(m))if(m[k].exp<Date.now()||!(await Relay.get(k).catch(()=>1))){delete m[k];ch=1}if(ch)setMine(m);const L=Object.entries(m);$('#dc').textContent=L.length?L.length+' active':'';
+if(!L.length){el.innerHTML='<div class="mut">No active drops yet. Encrypt a .env to create one.</div>';return}
+el.innerHTML='';L.sort((a,b)=>a[1].exp-b[1].exp).forEach(([id,d])=>{const s=Math.max(0,(d.exp-Date.now())/1000|0),r=document.createElement('div');r.className='dr';
+r.innerHTML=`<span class="cy">${esc(id.slice(0,8))}</span><span class="mut">${d.mode==='link'?'link':'phrase'}${d.pw?' · password':''}${d.burn?' · burns':''}</span><span>${s>3600?(s/3600|0)+'h':s>60?(s/60|0)+'m':s+'s'}</span>`;
+const b=document.createElement('button');b.className='ro';b.textContent='Burn';b.onclick=async()=>{await Relay.del(id);ses.burned++;renderDrops();toast('Drop burned')};r.append(b);el.append(r)})}
+setInterval(renderDrops,15000);addEventListener('storage',renderDrops);renderDrops();
+addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter'&&$('#p-create').classList.contains('on')&&!$('#go').disabled)run()});
+upd();
+</script></body></html>
